@@ -1,6 +1,5 @@
 local M = {}
 
--- Format the current buffer using c_formatter_42
 function M.format()
 	local buf = vim.api.nvim_get_current_buf()
 	local filepath = vim.api.nvim_buf_get_name(buf)
@@ -25,7 +24,6 @@ function M.format()
 	})
 end
 
--- Setup function for user configuration
 function M.setup(opts)
 	opts = opts or {}
 	local auto_format = opts.auto_format or false
