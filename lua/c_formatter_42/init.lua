@@ -1,9 +1,15 @@
+vim.keymap.set("n", "<leader>uf", function()
+	_G.enable_format_on_save = not _G.enable_format_on_save
+
+	if _G.enable_format_on_save then
+		vim.notify("Format on save: ENABLED", vim.log.levels.INFO)
+	else
+		vim.notify("Format on save: DISABLED", vim.log.levels.WARN)
+	end
+end, { desc = "Toggle format on save" })
+
 local M = {}
 
--- Flag global pour activer/désactiver le format-on-save
-_G.cfe42_auto_format = true
-
--- Fonction principale de formatage
 function M.format()
 	local buf = vim.api.nvim_get_current_buf()
 	local filepath = vim.api.nvim_buf_get_name(buf)
@@ -25,20 +31,13 @@ function M.format()
 	})
 end
 
--- Autocommand pour format-on-save si activé
 vim.api.nvim_create_autocmd("BufWritePre", {
 	pattern = "*.c",
 	callback = function()
-		if _G.cfe42_auto_format then
+		if _G.enable_format_on_save then
 			M.format()
 		end
 	end,
 })
-
--- Commande pour toggle
-vim.api.nvim_create_user_command("ToggleCFormat", function()
-	_G.cfe42_auto_format = not _G.cfe42_auto_format
-	vim.notify("Auto format: " .. (_G.cfe42_auto_format and "ON" or "OFF"))
-end, {})
 
 return M
