@@ -2,41 +2,6 @@ local M = {}
 
 _G.enable_format_on_save = false
 
-local function ensure_c_formatter_42_installed()
-	local home = vim.fn.expand("~")
-	local install_dir = home .. "/.local/src/c_formatter_42"
-	local venv_path = install_dir .. "/venv"
-	local bin_path = venv_path .. "/bin"
-	local formatter_path = bin_path .. "/c_formatter_42"
-
-	if vim.fn.executable(formatter_path) == 1 then
-		return formatter_path
-	end
-
-	vim.notify("Installing c_formatter_42 in virtualenv...", vim.log.levels.INFO)
-
-	if vim.fn.isdirectory(install_dir) == 0 then
-		vim.fn.mkdir(install_dir, "p")
-	end
-
-	local cmds = {
-		string.format("git clone https://github.com/cacharle/c_formatter_42 %s", install_dir),
-		string.format("python -m venv %s", venv_path),
-		string.format("%s/pip install -e %s", bin_path, install_dir),
-	}
-
-	for _, cmd in ipairs(cmds) do
-		local result = vim.fn.system(cmd)
-		if vim.v.shell_error ~= 0 then
-			vim.notify("Installation step failed:\n" .. result, vim.log.levels.ERROR)
-			return nil
-		end
-	end
-
-	vim.notify("Successfully installed c_formatter_42 in virtualenv", vim.log.levels.INFO)
-	return formatter_path
-end
-
 function M.format()
 	local buf = vim.api.nvim_get_current_buf()
 	local filepath = vim.api.nvim_buf_get_name(buf)
@@ -46,12 +11,12 @@ function M.format()
 		return
 	end
 
-	local formatter = ensure_c_formatter_42_installed()
-	if not formatter then
+	if vim.fn.executable("c_formatter_42") == 0 then
+		vim.notify("[c_formatter_42] Not found in PATH. Please install it.", vim.log.levels.ERROR)
 		return
 	end
 
-	local cmd = string.format("%s %s", formatter, vim.fn.shellescape(filepath))
+	local cmd = string.format("c_formatter_42 %s", vim.fn.shellescape(filepath))
 	vim.fn.jobstart(cmd, {
 		on_exit = function(_, code)
 			if code == 0 then
