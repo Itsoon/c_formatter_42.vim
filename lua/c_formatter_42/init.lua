@@ -29,16 +29,19 @@ end
 function M.setup(opts)
 	opts = opts or {}
 	local auto_format = opts.auto_format or false
-	local toggle_key = opts.toggle_key or "<leader>uf" -- Default toggle key
+	local toggle_key = opts.toggle_key or "<leader>uf"
 
 	vim.api.nvim_create_user_command("FormatC42", function()
 		M.format()
-	end, {})
+	end, {
+		desc = "Format current C file with c_formatter_42",
+	})
 
 	if auto_format then
 		M.enable_format_on_save()
 	end
 
+	-- Keymap pour toggle
 	vim.keymap.set("n", toggle_key, function()
 		M.toggle_format_on_save()
 	end, { desc = "Toggle format on save" })
